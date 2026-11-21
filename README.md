@@ -13,7 +13,6 @@
 
 - [项目索引](https://github.com/rabbit-Qbin/project)
 - [飞书插件索引](https://github.com/rabbit-Qbin/feishu)
-- [bggg-skills 上游项目 fork](https://github.com/rabbit-Qbin/bggg-skills)
 
 ## 使用 Skill
 
