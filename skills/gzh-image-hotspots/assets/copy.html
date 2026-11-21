@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>公众号图片热区</title>
+<style>
+  :root { color-scheme: light; font: 16px/1.55 "Microsoft YaHei", sans-serif; color: #211d29; background: #f6f4fa; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  main { display: grid; grid-template-columns: minmax(230px, 310px) minmax(0, 440px); gap: 42px; align-items: start; width: min(100% - 40px, 860px); margin: 40px auto; }
+  header { position: sticky; top: 28px; padding: 26px; background: white; border: 1px solid #e6dff2; border-top: 4px solid #6415d9; border-radius: 12px; }
+  h1 { margin: 0 0 12px; font-size: 23px; line-height: 1.35; }
+  p { margin: 0 0 14px; color: #524762; }
+  button { width: 100%; border: 0; border-radius: 7px; padding: 13px 16px; background: #5b16c8; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+  button:focus-visible { outline: 3px solid #8549f2; outline-offset: 3px; }
+  #status { margin: 10px 0 0; min-height: 1.55em; color: #4d158d; font-size: 14px; }
+  #poster { background: #fff; outline: 1px solid #e6dff2; }
+  #poster a:focus-visible { outline: 2px solid #6415d9; outline-offset: -2px; }
+  @media (max-width: 660px) {
+    main { display: block; margin: 18px auto; }
+    header { position: static; margin-bottom: 18px; padding: 18px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>公众号图片热区</h1>
+    <p>复制后粘贴到新建草稿的正文。等图片处理完毕，保存并重新打开，再用手机微信逐一预览各个入口。</p>
+    <button id="copy" type="button">一键复制到公众号</button>
+    <p id="status" role="status"></p>
+  </header>
+  <div id="poster" aria-label="海报预览">__POSTER__</div>
+</main>
+<script>
+const button = document.querySelector('#copy');
+const poster = document.querySelector('#poster');
+const status = document.querySelector('#status');
+button.addEventListener('click', () => {
+  let copied = false;
+  function copyPoster(event) {
+    if (!event.clipboardData) return;
+    event.clipboardData.setData('text/html', poster.innerHTML);
+    event.clipboardData.setData('text/plain', '公众号图片热区');
+    event.preventDefault();
+    copied = true;
+  }
+  document.addEventListener('copy', copyPoster, { once: true });
+  try {
+    document.execCommand('copy');
+  } finally {
+    document.removeEventListener('copy', copyPoster);
+    status.textContent = copied
+      ? '已复制图文模块。请切到草稿按 Ctrl+V。'
+      : '复制未成功，请用 Chrome 或 Edge 打开本页重试。';
+  }
+});
+</script>
+</body>
+</html>
