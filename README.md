@@ -6,7 +6,7 @@
 
 | Skill | 用途 |
 | --- | --- |
-| [gzh-image-hotspots](gzh-image-hotspots/SKILL.md) | 给微信公众号图片局部加跳转链接，支持多图拼接，生成可一键复制到草稿的 HTML。 |
+| [gzh-svg-layout](gzh-svg-layout/SKILL.md) | 微信公众号 SVG 排版，支持图片局部链接、换图、滑动、轮播、局部缩放、GIF 长图和固定模块，交付可一键复制到草稿的 HTML。 |
 | [rabbitQ-lark2xhs](https://github.com/rabbit-Qbin/rabbitQ-lark2xhs) | 把飞书文档或 Markdown 转为可编辑的小红书图文，源码在独立仓库。 |
 
 ## 其他仓库

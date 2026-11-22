@@ -9,6 +9,8 @@ from urllib.parse import parse_qs, urlsplit
 
 from PIL import Image, ImageOps
 
+from interactions import data_uri, img, render_effect
+
 
 @dataclass(frozen=True)
 class Region:
@@ -107,23 +109,56 @@ def render_poster(image, regions):
 
 def render_image(path, rows):
     with Image.open(path) as source:
+        if source.format == "GIF" and getattr(source, "is_animated", False):
+            if rows != []:
+                raise ValueError("Animated GIFs retain their frames as a whole image. Use a separate static image for hotspots.")
+            return img(data_uri("gif", path.read_bytes()))
         oriented = ImageOps.exif_transpose(source)
         mode = "RGBA" if "A" in oriented.getbands() or "transparency" in oriented.info else "RGB"
         image = oriented.convert(mode)
     return render_poster(image, read_regions(rows, *image.size))
 
 
-def render_stack(manifest):
-    panels = json.loads(manifest.read_text(encoding="utf-8-sig"))
-    if not isinstance(panels, list) or not panels:
-        raise ValueError("Provide a nonempty array of images in top-to-bottom order")
-
-    posters = []
+def collect_panels(manifest):
+    data = json.loads(manifest.read_text(encoding="utf-8-sig"))
+    panels = data.get("panels") if isinstance(data, dict) else data
+    modules = data.get("modules", {}) if isinstance(data, dict) else {}
+    if not isinstance(panels, list) or not panels or not isinstance(modules, dict):
+        raise ValueError("Provide panels in reading order and an optional map of module names to JSON paths")
+    ordered = []
     for panel in panels:
-        if not isinstance(panel, dict) or not isinstance(panel.get("image"), str) or not panel["image"].strip():
-            raise ValueError("Each panel needs an image path")
-        path = manifest.parent / panel["image"]
-        posters.append(render_image(path, panel.get("regions", [])))
+        if not isinstance(panel, dict):
+            raise ValueError("Each panel must be a JSON object")
+        if "module" not in panel:
+            ordered.append((panel, manifest.parent))
+            continue
+        name = panel["module"]
+        if not isinstance(name, str) or not isinstance(modules.get(name), str) or not modules[name]:
+            raise ValueError(f"Unknown reusable module: {name}")
+        if len(panel) != 1:
+            raise ValueError("A module reference must contain only its name")
+        module = manifest.parent / modules[name]
+        parts = json.loads(module.read_text(encoding="utf-8-sig"))
+        if not isinstance(parts, list) or not parts or any(
+            not isinstance(part, dict) or "module" in part for part in parts
+        ):
+            raise ValueError(f"Module {name} must be a nonempty list of image or effect panels")
+        ordered.extend((part, module.parent) for part in parts)
+    return ordered
+
+
+def render_stack(manifest):
+    posters = []
+    for index, (panel, directory) in enumerate(collect_panels(manifest)):
+        if "effect" in panel:
+            if panel.get("regions"):
+                raise ValueError("Configure links in a separate static panel")
+            posters.append(render_effect(panel, directory, index))
+        else:
+            if not isinstance(panel.get("image"), str) or not panel["image"].strip():
+                raise ValueError("Each static panel needs an image path")
+            path = directory / panel["image"]
+            posters.append(render_image(path, panel.get("regions", [])))
     return (
         '<section style="display:block;width:100%;font-size:0;line-height:0;margin:0;padding:0;">'
         + "".join(posters) + "</section>"

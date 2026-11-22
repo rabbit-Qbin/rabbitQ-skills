@@ -1,4 +1,0 @@
-interface:
-  display_name: "公众号图片局部跳转"
-  short_description: "为公众号图片的指定区域植入链接，可拼接长图并一键复制到草稿"
-  default_prompt: "用 $gzh-image-hotspots 给图片局部加跳转链接。第一次使用时请告诉我需要提供什么，已有材料就直接处理。"

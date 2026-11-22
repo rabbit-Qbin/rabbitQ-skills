@@ -45,6 +45,42 @@ python scripts/build_hotspots.py --stack "manifest.json" "公众号长图.html"
 ```
 
 
+## 组合互动与固定模块
+
+继续使用 `--stack`。清单既可写成上面的数组，也可使用 `modules` 和 `panels`。所有路径相对它们所在的 JSON 文件，并支持绝对路径。每个已登记模块是一个独立的非空 JSON 数组，包含普通图片或互动段。模块可在文章里多次引用。
+
+```json
+{
+  "modules": {"固定社媒": "modules/social.json"},
+  "panels": [
+    {"image":"开篇.jpg"},
+    {"effect":"fade","images":["点击前.jpg","点击后.jpg"],"box":[160,280,520,460]},
+    {"module":"固定社媒"},
+    {"effect":"swipe","images":["1.jpg","2.jpg","3.jpg"]},
+    {"effect":"carousel","images":["1.jpg","2.jpg","3.jpg"]},
+    {"effect":"zoom","images":["产品图.jpg"],"box":[160,280,520,460]},
+    {"image":"原版动图.gif"},
+    {"effect":"gif","images":["点击前.jpg","点击后.jpg"]},
+    {"image":"结尾.jpg"}
+  ]
+}
+```
+
+`modules/social.json` 的内容示例：
+
+```json
+[
+  {
+    "image":"社媒海报.jpg",
+    "regions":[{"label":"品牌主页","url":"https://example.com/brand","box":[160,280,520,460]}]
+  }
+]
+```
+
+- 一组互动内的图片使用相同的显示尺寸。普通纵排图片可以尺寸不同，保持各自比例。
+- `fade` 用两张图。 `zoom` 用一张图。二者需要点击矩形。 `swipe` 和 `carousel` 需要至少两张图。
+- `gif` 支持 `image` 传已有 GIF，或 `images` 传两张图生成循环淡变 GIF。已有 GIF 也可以直接作为普通 `image` 纵排。若需要再加商品链接，可用相邻的静态图片热区承载。
+
 ## 输出检查
 
 - 输出为自包含 HTML，图片已嵌入，交付时只需这个 HTML。携带源图的 HTML 应按源图同等范围分享。

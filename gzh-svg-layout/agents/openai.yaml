@@ -1,0 +1,4 @@
+interface:
+  display_name: "公众号 SVG 排版"
+  short_description: "生成公众号图片局部链接、SVG 互动及可复用模块，排成一键复制的 HTML"
+  default_prompt: "用 $gzh-svg-layout 给微信公众号做排版。请根据我的素材设置链接或互动，并按指定位置插入固定模块，输出可一键复制的 HTML。"
