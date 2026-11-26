@@ -56,20 +56,22 @@ def region_box(box, size, scale):
     return tuple(n * scale for n in (left, top, right-left, bottom-top))
 
 
-def hit_rect(box, attributes=""):
+def hit_rect(box, attributes="", pointer_events=True):
     x, y, width, height = box
     return (
         f'<rect x="{x:g}" y="{y:g}" width="{width:g}" height="{height:g}" '
-        f'fill="transparent" pointer-events="visible" style="cursor:pointer;"{attributes}></rect>'
+        f'fill="transparent"{" pointer-events=\"visible\"" if pointer_events else ""} '
+        f'style="cursor:pointer;"{attributes}></rect>'
     )
 
 
 def fade(assets, width, height, box):
     front, back = (svg_image(uri, width, height) for _, uri in assets)
     return svg(
-        back + '<g opacity="1">' + front + hit_rect(box)
+        back + '<g opacity="1">' + front + hit_rect(box, pointer_events=False)
         + '<animate attributeName="opacity" begin="click" dur="0.42s" values="1;0" '
-        'keyTimes="0;1" calcMode="spline" keySplines="0.33 0 0.22 1" fill="freeze" restart="never"></animate></g>',
+        'keyTimes="0;1" calcMode="spline" keySplines="0.33 0 0.22 1" fill="freeze" restart="never"></animate>'
+        '<set attributeName="pointer-events" to="none" begin="click" fill="freeze"></set></g>',
         width, height,
     )
 
